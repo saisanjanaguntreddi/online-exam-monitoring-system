@@ -25,24 +25,33 @@ def register():
         connection = sqlite3.connect("database/exam.db")
         cursor = connection.cursor()
 
-        # Check if email already exists
-        cursor.execute("SELECT * FROM candidate WHERE email = ?", (email,))
+        # Check Duplicate Email
+        cursor.execute(
+            "SELECT * FROM candidate WHERE email=?",
+            (email,)
+        )
+
         existing_user = cursor.fetchone()
 
         if existing_user:
+
             connection.close()
+
             return """
-            <h2>This Email is Already Registered.</h2>
-            <a href="/login">
-                <button>Go to Login</button>
-            </a>
+            <script>
+            alert("This Email is Already Registered.");
+            window.location='/login';
+            </script>
             """
 
-        # Register Candidate
-        cursor.execute("""
-            INSERT INTO candidate(full_name, email, exam_name)
+        # Insert Candidate
+        cursor.execute(
+            """
+            INSERT INTO candidate(full_name,email,exam_name)
             VALUES(?,?,?)
-        """, (full_name, email, exam_name))
+            """,
+            (full_name, email, exam_name)
+        )
 
         connection.commit()
 
@@ -50,19 +59,10 @@ def register():
 
         connection.close()
 
-        return f"""
-        <h2>Registration Successful!</h2>
-
-        <h3>Your Candidate ID : {candidate_id}</h3>
-
-        <p>Please save your Candidate ID for Login.</p>
-
-        <h4>Session Status : Not Started</h4>
-
-        <a href="/login">
-            <button>Go to Login</button>
-        </a>
-        """
+        return render_template(
+            "register_success.html",
+            candidate_id=candidate_id
+        )
 
     return render_template("register.html")
 
@@ -80,10 +80,13 @@ def login():
         connection = sqlite3.connect("database/exam.db")
         cursor = connection.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM candidate
             WHERE id=? AND email=?
-        """, (candidate_id, email))
+            """,
+            (candidate_id, email)
+        )
 
         candidate = cursor.fetchone()
 
@@ -91,108 +94,45 @@ def login():
 
         if candidate:
 
-            return f"""
-            <h2>Login Successful!</h2>
-
-            <h3>Welcome {candidate[1]}</h3>
-
-            <h4>Candidate ID : {candidate[0]}</h4>
-
-            <a href="/exam">
-                <button>Proceed to Exam</button>
-            </a>
-            """
+            return render_template(
+                "login_success.html",
+                candidate_name=candidate[1],
+                candidate_id=candidate[0]
+            )
 
         else:
 
             return """
-            <h2>Invalid Candidate ID or Email</h2>
+            <script>
 
-            <a href="/login">
-                <button>Try Again</button>
-            </a>
+            alert("Invalid Candidate ID or Email");
+
+            window.location='/login';
+
+            </script>
             """
 
     return render_template("login.html")
 
 
-# ---------------- EXAM ----------------
+# ---------------- EXAM INSTRUCTIONS ----------------
 
 @app.route("/exam")
 def exam():
 
-    return """
-    <!DOCTYPE html>
+    return render_template("exam.html")
 
-    <html>
 
-    <head>
+# ---------------- QUESTIONS PAGE ----------------
 
-        <title>Online Exam</title>
+@app.route("/questions")
+def questions():
 
-        <style>
+    return render_template("questions.html")
 
-            body{
-                font-family:Arial;
-                text-align:center;
-                margin-top:40px;
-            }
 
-            button{
-                padding:12px 20px;
-                margin:10px;
-                font-size:16px;
-            }
-
-        </style>
-
-    </head>
-
-    <body>
-
-        <h1>Online Examination</h1>
-
-        <h2>Exam Instructions</h2>
-
-        <ul style="display:inline-block;text-align:left;">
-
-            <li>Keep your camera ON.</li>
-
-            <li>Do not switch browser tabs.</li>
-
-            <li>No mobile phones allowed.</li>
-
-            <li>Do not leave your seat during the examination.</li>
-
-            <li>Follow all examination rules.</li>
-
-        </ul>
-
-        <br><br>
-
-        <h3>Session Status : Not Started</h3>
-
-        <button onclick="alert('Exam Started')">
-            Start Exam
-        </button>
-
-        <button onclick="alert('Exam Paused')">
-            Pause Exam
-        </button>
-
-        <button onclick="alert('Exam Resumed')">
-            Resume Exam
-        </button>
-
-        <button onclick="alert('Exam Submitted Successfully')">
-            Submit Exam
-        </button>
-
-    </body>
-
-    </html>
-    """
-
+# ---------------- MAIN ----------------
 
 if __name__ == "__main__":
+
     app.run(debug=True)
