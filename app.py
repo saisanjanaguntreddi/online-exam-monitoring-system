@@ -31,9 +31,14 @@ def register():
 
         if existing_user:
             connection.close()
-            return "This email is already registered. Please login."
+            return """
+            <h2>This Email is Already Registered.</h2>
+            <a href="/login">
+                <button>Go to Login</button>
+            </a>
+            """
 
-        # Insert new candidate
+        # Register Candidate
         cursor.execute("""
             INSERT INTO candidate(full_name, email, exam_name)
             VALUES(?,?,?)
@@ -41,15 +46,19 @@ def register():
 
         connection.commit()
 
-        # Get Candidate ID
         candidate_id = cursor.lastrowid
 
         connection.close()
 
         return f"""
         <h2>Registration Successful!</h2>
-        <h3>Your Candidate ID is : {candidate_id}</h3>
-        <p>Please save your Candidate ID.</p>
+
+        <h3>Your Candidate ID : {candidate_id}</h3>
+
+        <p>Please save your Candidate ID for Login.</p>
+
+        <h4>Session Status : Not Started</h4>
+
         <a href="/login">
             <button>Go to Login</button>
         </a>
@@ -81,15 +90,28 @@ def login():
         connection.close()
 
         if candidate:
+
             return f"""
             <h2>Login Successful!</h2>
+
             <h3>Welcome {candidate[1]}</h3>
-            <a href='/exam'>
-                <button>Start Exam</button>
+
+            <h4>Candidate ID : {candidate[0]}</h4>
+
+            <a href="/exam">
+                <button>Proceed to Exam</button>
             </a>
             """
+
         else:
-            return "Invalid Candidate ID or Email"
+
+            return """
+            <h2>Invalid Candidate ID or Email</h2>
+
+            <a href="/login">
+                <button>Try Again</button>
+            </a>
+            """
 
     return render_template("login.html")
 
@@ -98,17 +120,77 @@ def login():
 
 @app.route("/exam")
 def exam():
+
     return """
-    <h1>Exam Instructions</h1>
+    <!DOCTYPE html>
 
-    <ul>
-        <li>Camera should remain ON.</li>
-        <li>Do not switch tabs.</li>
-        <li>No mobile phones allowed.</li>
-        <li>Click Start when ready.</li>
-    </ul>
+    <html>
 
-    <button>Start Exam</button>
+    <head>
+
+        <title>Online Exam</title>
+
+        <style>
+
+            body{
+                font-family:Arial;
+                text-align:center;
+                margin-top:40px;
+            }
+
+            button{
+                padding:12px 20px;
+                margin:10px;
+                font-size:16px;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <h1>Online Examination</h1>
+
+        <h2>Exam Instructions</h2>
+
+        <ul style="display:inline-block;text-align:left;">
+
+            <li>Keep your camera ON.</li>
+
+            <li>Do not switch browser tabs.</li>
+
+            <li>No mobile phones allowed.</li>
+
+            <li>Do not leave your seat during the examination.</li>
+
+            <li>Follow all examination rules.</li>
+
+        </ul>
+
+        <br><br>
+
+        <h3>Session Status : Not Started</h3>
+
+        <button onclick="alert('Exam Started')">
+            Start Exam
+        </button>
+
+        <button onclick="alert('Exam Paused')">
+            Pause Exam
+        </button>
+
+        <button onclick="alert('Exam Resumed')">
+            Resume Exam
+        </button>
+
+        <button onclick="alert('Exam Submitted Successfully')">
+            Submit Exam
+        </button>
+
+    </body>
+
+    </html>
     """
 
 
