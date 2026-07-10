@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request
 import sqlite3
+import subprocess
+import sys
 
 app = Flask(__name__)
 
@@ -25,7 +27,7 @@ def register():
         connection = sqlite3.connect("database/exam.db")
         cursor = connection.cursor()
 
-        # Check Duplicate Email
+        # Check duplicate email
         cursor.execute(
             "SELECT * FROM candidate WHERE email=?",
             (email,)
@@ -44,7 +46,7 @@ def register():
             </script>
             """
 
-        # Insert Candidate
+        # Save candidate
         cursor.execute(
             """
             INSERT INTO candidate(full_name,email,exam_name)
@@ -59,6 +61,14 @@ def register():
 
         connection.close()
 
+        # Open Registration Camera
+        subprocess.run([
+            sys.executable,
+            "monitoring/registration_photo.py",
+            str(candidate_id)
+        ])
+
+        # Registration Success Page
         return render_template(
             "register_success.html",
             candidate_id=candidate_id
@@ -104,35 +114,29 @@ def login():
 
             return """
             <script>
-
             alert("Invalid Candidate ID or Email");
-
             window.location='/login';
-
             </script>
             """
 
     return render_template("login.html")
 
 
-# ---------------- EXAM INSTRUCTIONS ----------------
+# ---------------- EXAM ----------------
 
 @app.route("/exam")
 def exam():
-
     return render_template("exam.html")
 
 
-# ---------------- QUESTIONS PAGE ----------------
+# ---------------- QUESTIONS ----------------
 
 @app.route("/questions")
 def questions():
-
     return render_template("questions.html")
 
 
 # ---------------- MAIN ----------------
 
 if __name__ == "__main__":
-
     app.run(debug=True)
