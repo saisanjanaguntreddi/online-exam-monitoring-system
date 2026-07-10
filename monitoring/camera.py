@@ -5,6 +5,7 @@ import time
 from warning_system import add_warning
 from photo_capture import save_warning_photo
 
+# Create folder if it doesn't exist
 os.makedirs("captured_photos", exist_ok=True)
 
 # Load Face Detection Model
@@ -16,8 +17,9 @@ camera = cv2.VideoCapture(0)
 
 photo_count = 1
 
-# No face timer
+# Timers
 no_face_start = None
+multiple_face_start = None
 
 while True:
 
@@ -34,13 +36,52 @@ while True:
         minNeighbors=5
     )
 
-    # Face Found
-    if len(faces) > 0:
+    # ==========================
+    # MULTIPLE FACE DETECTION
+    # ==========================
+    if len(faces) > 1:
+
+        cv2.putText(
+            frame,
+            "WARNING : Multiple Faces Detected",
+            (20, 40),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 0, 255),
+            2
+        )
+
+        # Draw rectangles around all faces
+        for (x, y, w, h) in faces:
+            cv2.rectangle(
+                frame,
+                (x, y),
+                (x + w, y + h),
+                (0, 0, 255),
+                2
+            )
 
         no_face_start = None
 
-        for (x, y, w, h) in faces:
+        if multiple_face_start is None:
+            multiple_face_start = time.time()
 
+        elif time.time() - multiple_face_start >= 5:
+
+            warning = add_warning()
+            save_warning_photo(frame, warning)
+
+            multiple_face_start = time.time()
+
+    # ==========================
+    # SINGLE FACE
+    # ==========================
+    elif len(faces) == 1:
+
+        no_face_start = None
+        multiple_face_start = None
+
+        for (x, y, w, h) in faces:
             cv2.rectangle(
                 frame,
                 (x, y),
@@ -52,23 +93,27 @@ while True:
         cv2.putText(
             frame,
             "Face Detected",
-            (20,40),
+            (20, 40),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,
-            (0,255,0),
+            (0, 255, 0),
             2
         )
 
-    # No Face
+    # ==========================
+    # NO FACE DETECTION
+    # ==========================
     else:
+
+        multiple_face_start = None
 
         cv2.putText(
             frame,
             "No Face",
-            (20,40),
+            (20, 40),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,
-            (0,0,255),
+            (0, 0, 255),
             2
         )
 
@@ -78,26 +123,27 @@ while True:
         elif time.time() - no_face_start >= 5:
 
             warning = add_warning()
-
             save_warning_photo(frame, warning)
 
             no_face_start = time.time()
 
+    # Show Camera
     cv2.imshow("Online Exam Monitoring", frame)
 
     key = cv2.waitKey(1) & 0xFF
 
-    # Manual photo
+    # Manual Photo Capture
     if key == ord("s"):
 
         filename = f"captured_photos/photo_{photo_count}.jpg"
 
         cv2.imwrite(filename, frame)
 
-        print("Photo Saved")
+        print(f"Photo Saved : {filename}")
 
         photo_count += 1
 
+    # Quit
     elif key == ord("q"):
         break
 
