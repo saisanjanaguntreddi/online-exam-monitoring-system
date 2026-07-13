@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Starting Examination</title>
+
+<style>
+
+*{
+
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,Arial,sans-serif;
+
+}
+
+body{
+
+height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+background:linear-gradient(135deg,#0f172a,#1e40af,#3b82f6);
+
+}
+
+.container{
+
+background:white;
+
+padding:50px;
+
+width:500px;
+
+border-radius:18px;
+
+text-align:center;
+
+box-shadow:0 20px 40px rgba(0,0,0,.30);
+
+}
+
+h1{
+
+color:#1e3a8a;
+
+margin-bottom:20px;
+
+}
+
+p{
+
+font-size:18px;
+
+margin-bottom:25px;
+
+}
+
+.loader{
+
+width:70px;
+
+height:70px;
+
+border:8px solid #ddd;
+
+border-top:8px solid #2563eb;
+
+border-radius:50%;
+
+margin:auto;
+
+animation:spin 1s linear infinite;
+
+}
+
+@keyframes spin{
+
+100%{
+
+transform:rotate(360deg);
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Starting Examination...</h1>
+
+<p>Please wait while the camera is starting.</p>
+
+<div class="loader"></div>
+
+</div>
+
+<script>
+
+setTimeout(function(){
+
+window.location="/questions";
+
+},3000);
+
+</script>
+
+</body>
+
+</html>

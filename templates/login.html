@@ -226,6 +226,42 @@
 
         }
 
+        .password-box{
+
+            position:relative;
+
+            margin-bottom:20px;
+
+        }
+
+        .password-box input{
+
+            width:100%;
+
+            padding-right:50px;
+
+            margin-bottom:0;
+
+        }
+
+        .toggle{
+
+            position:absolute;
+
+            right:15px;
+
+            top:50%;
+
+            transform:translateY(-50%);
+
+            cursor:pointer;
+
+            font-size:20px;
+
+            user-select:none;
+
+        }
+
     </style>
 
 </head>
@@ -254,6 +290,21 @@ name="email"
 placeholder="Enter Email Address"
 required>
 
+<label>Password</label>
+
+<div class="password-box">
+
+<input
+type="password"
+id="password"
+name="password"
+placeholder="Enter Password"
+required>
+
+<span class="toggle" onclick="togglePassword('password',this)">👁</span>
+
+</div>
+
 <button type="submit">
 
 Login
@@ -275,6 +326,30 @@ Register Here
 </div>
 
 </div>
+
+<script>
+
+function togglePassword(id,icon){
+
+    let input=document.getElementById(id);
+
+    if(input.type==="password"){
+
+        input.type="text";
+        icon.innerHTML="🙈";
+
+    }
+
+    else{
+
+        input.type="password";
+        icon.innerHTML="👁";
+
+    }
+
+}
+
+</script>
 
 </body>
 

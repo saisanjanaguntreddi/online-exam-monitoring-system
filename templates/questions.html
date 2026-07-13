@@ -4,8 +4,14 @@
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Online Examination</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 
@@ -14,30 +20,24 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Poppins,Arial,sans-serif;
+font-family:'Poppins',sans-serif;
 
 }
 
 body{
 
 background:#eef2ff;
-
-padding:40px;
+padding:30px;
 
 }
 
 .container{
 
-width:850px;
-
+width:1000px;
 margin:auto;
-
 background:white;
-
 padding:35px;
-
 border-radius:15px;
-
 box-shadow:0 10px 25px rgba(0,0,0,.20);
 
 }
@@ -45,53 +45,77 @@ box-shadow:0 10px 25px rgba(0,0,0,.20);
 .top{
 
 display:flex;
-
 justify-content:space-between;
-
-margin-bottom:30px;
+align-items:center;
+margin-bottom:25px;
 
 }
 
 .box{
 
 background:#2563eb;
-
 color:white;
-
 padding:12px 20px;
-
 border-radius:8px;
-
 font-weight:bold;
+
+}
+
+.camera-section{
+
+text-align:center;
+margin-bottom:30px;
+
+}
+
+.camera-section h3{
+
+color:#1e3a8a;
+margin-bottom:15px;
+
+}
+
+#camera{
+
+width:340px;
+height:250px;
+background:black;
+border-radius:12px;
+border:4px solid #2563eb;
+object-fit:cover;
 
 }
 
 .question{
 
-margin-top:20px;
+margin-top:25px;
 
 }
 
 .question h2{
 
 margin-bottom:20px;
+color:#1e3a8a;
 
 }
 
 .option{
 
 margin-bottom:15px;
-
 font-size:18px;
+
+}
+
+.option input{
+
+margin-right:10px;
 
 }
 
 .buttons{
 
 display:flex;
-
 justify-content:space-between;
-
 margin-top:35px;
 
 }
@@ -99,16 +123,17 @@ margin-top:35px;
 button{
 
 padding:14px 30px;
-
 border:none;
-
 border-radius:8px;
-
 font-size:16px;
-
 cursor:pointer;
-
 color:white;
+
+}
+
+.previous{
+
+background:#6b7280;
 
 }
 
@@ -121,6 +146,12 @@ background:#2563eb;
 .submit{
 
 background:#dc2626;
+
+}
+
+.warning{
+
+background:#f59e0b;
 
 }
 
@@ -143,6 +174,17 @@ Running
 
 <div class="box">
 
+Warnings :
+<span id="warningCount">
+
+0
+
+</span>
+
+</div>
+
+<div class="box">
+
 Time Left :
 <span id="timer">
 
@@ -154,17 +196,34 @@ Time Left :
 
 </div>
 
+<div class="camera-section">
+
+<h3>Live Camera Monitoring</h3>
+
+<video
+id="camera"
+autoplay
+playsinline
+muted>
+
+</video>
+<canvas
+id="canvas"
+width="640"
+height="480"
+style="display:none;">
+</canvas>
+</div>
+
 <div class="question">
 
-<h2>
+<h2 id="questionTitle">
 
 Question 1
 
 </h2>
 
-<p>
-
-Which language is used for Flask?
+<p id="questionText">
 
 </p>
 
@@ -172,41 +231,48 @@ Which language is used for Flask?
 
 <div class="option">
 
-<input type="radio" name="q1">
+<input type="radio" name="answer" id="opt0">
 
-Python
-
-</div>
-
-<div class="option">
-
-<input type="radio" name="q1">
-
-Java
+<label id="label0"></label>
 
 </div>
 
 <div class="option">
 
-<input type="radio" name="q1">
+<input type="radio" name="answer" id="opt1">
 
-C++
+<label id="label1"></label>
 
 </div>
 
 <div class="option">
 
-<input type="radio" name="q1">
+<input type="radio" name="answer" id="opt2">
 
-PHP
-
-</div>
+<label id="label2"></label>
 
 </div>
 
+<div class="option">
+
+<input type="radio" name="answer" id="opt3">
+
+<label id="label3"></label>
+
+</div>
 <div class="buttons">
 
-<button class="next">
+<button
+class="previous"
+onclick="previousQuestion()">
+
+Previous
+
+</button>
+
+<button
+class="next"
+onclick="nextQuestion()">
 
 Next
 
@@ -224,33 +290,143 @@ Submit Exam
 
 </div>
 
+</div>
+
 <script>
 
-let seconds=1800;
+const questions=[
+
+{
+
+question:"Which language is used for Flask?",
+
+options:["Python","Java","C++","PHP"],
+
+answer:0
+
+},
+
+{
+
+question:"Which database is used in this project?",
+
+options:["MySQL","SQLite","Oracle","MongoDB"],
+
+answer:1
+
+},
+
+{
+
+question:"Which framework is used for Backend?",
+
+options:["Django","React","Flask","Angular"],
+
+answer:2
+
+},
+
+{
+
+question:"Which library is used for Face Detection?",
+
+options:["TensorFlow","OpenCV","NumPy","Pandas"],
+
+answer:1
+
+},
+
+{
+
+question:"Which language is mainly used in this project?",
+
+options:["Python","Java","C#","Ruby"],
+
+answer:0
+
+}
+
+];
+
+let currentQuestion=0;
+
+function loadQuestion(){
+
+document.getElementById("questionTitle").innerHTML="Question "+(currentQuestion+1);
+
+document.getElementById("questionText").innerHTML=questions[currentQuestion].question;
+
+for(let i=0;i<4;i++){
+
+document.getElementById("label"+i).innerHTML=questions[currentQuestion].options[i];
+
+document.getElementById("opt"+i).checked=false;
+
+}
+
+}
+
+loadQuestion();
+
+function nextQuestion(){
+
+if(currentQuestion<questions.length-1){
+
+currentQuestion++;
+
+loadQuestion();
+
+}
+
+}
+
+function previousQuestion(){
+
+if(currentQuestion>0){
+
+currentQuestion--;
+
+loadQuestion();
+
+}
+
+}
+let seconds = 1800;
 
 setInterval(function(){
 
-seconds--;
+    if(seconds > 0){
 
-let m=Math.floor(seconds/60);
+        seconds--;
 
-let s=seconds%60;
+        let m = Math.floor(seconds/60);
+        let s = seconds%60;
 
-if(m<10)m="0"+m;
+        if(m<10) m="0"+m;
+        if(s<10) s="0"+s;
 
-if(s<10)s="0"+s;
+        document.getElementById("timer").innerHTML = m + ":" + s;
 
-document.getElementById("timer").innerHTML=m+":"+s;
+    }
+    else{
+
+        submitExam();
+
+    }
 
 },1000);
 
 function submitExam(){
 
-alert("Exam Submitted Successfully");
+    alert("Exam Submitted Successfully");
+
+    window.location="/";
 
 }
 
 </script>
+
+<script src="{{ url_for('static', filename='js/monitor.js') }}"></script>
 
 </body>
 

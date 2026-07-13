@@ -225,10 +225,43 @@
             text-decoration:underline;
 
         }
+.password-box{
 
+    position:relative;
+
+    margin-bottom:20px;
+
+}
+
+.password-box input{
+
+    width:100%;
+
+    padding-right:50px;
+
+    margin-bottom:0;
+
+}
+
+.toggle{
+
+    position:absolute;
+
+    right:15px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    cursor:pointer;
+
+    font-size:20px;
+
+    user-select:none;
+
+}
     </style>
-
-</head>
+    </head>
 
 <body>
 
@@ -262,6 +295,35 @@ name="exam_name"
 placeholder="Enter exam name"
 required>
 
+<label>Password</label>
+
+<div class="password-box">
+
+<input
+type="password"
+id="password"
+name="password"
+placeholder="Enter your password"
+required>
+
+<span class="toggle" onclick="togglePassword('password',this)">👁</span>
+
+</div>
+
+<label>Confirm Password</label>
+
+<div class="password-box">
+
+<input
+type="password"
+id="confirm_password"
+name="confirm_password"
+placeholder="Confirm your password"
+required>
+
+<span class="toggle" onclick="togglePassword('confirm_password',this)">👁</span>
+
+</div>
 <button type="submit">
 
 Register
@@ -283,7 +345,28 @@ Login Here
 </div>
 
 </div>
+<script>
 
+function togglePassword(id,icon){
+
+    let input=document.getElementById(id);
+
+    if(input.type==="password"){
+
+        input.type="text";
+        icon.innerHTML="🙈";
+
+    }
+    else{
+
+        input.type="password";
+        icon.innerHTML="👁";
+
+    }
+
+}
+
+</script>
 </body>
 
 </html>

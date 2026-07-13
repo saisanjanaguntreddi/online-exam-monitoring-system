@@ -1,7 +1,7 @@
 venv/
 __pycache__/
 *.pyc
-.env
-exam.db
-
+database/*.db
 captured_photos/
+key.env
+.env
